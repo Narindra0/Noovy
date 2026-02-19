@@ -1,0 +1,29 @@
+📋 Cahier des Charges - Projet "Noovy"
+1. Présentation du Projet
+Noovy est une application mobile de gestion et de lecture de romans anciens.
+L'objectif est de permettre aux utilisateurs de découvrir des œuvres du domaine public, de les organiser et de les lire hors-ligne.
+
+2. Spécifications Techniques
+Frontend : React Native avec Expo Go (pour le développement cross-platform iOS/Android).
+Backend (API) : Node.js / Express (recommandé pour lier Expo à PostgreSQL).
+Base de données : PostgreSQL (gestion des utilisateurs, catalogue des livres, et métadonnées).
+Stockage des fichiers : Stockage local sur le téléphone (FileSystem Expo) pour les PDF/EPUB téléchargés.
+
+3. Architecture de la Base de Données (PostgreSQL)
+Il nous faudra au minimum les tables suivantes :
+Users : ID, email, mot de passe, préférences.
+Books : ID, titre, auteur, année, description, URL_couverture, URL_fichier.
+Downloads : ID_user, ID_book, date_telechargement.
+
+
+5. Fonctionnalités Clés à Développer
+Système de recherche : Requête SQL SELECT * FROM Books WHERE title LIKE ...
+Gestion du téléchargement : Utilisation de expo-file-system pour transférer le fichier du serveur vers le mobile.
+Mode Hors-ligne : L'app doit pouvoir lister les livres téléchargés même sans connexion internet.
+
+6. Planning de réalisation (Phases)
+Phase 1 Configuration de PostgreSQL et de l'API Node.js.
+Phase 2 UI de l'accueil sur Expo (Logo, Recherche, Grille de livres).
+Phase 3 Système de téléchargement et stockage local des fichiers.
+Phase 4 Développement du lecteur de romans et gestion de la bibliothèque.
+Note technique : Puisque tu utilises PostgreSQL, n'oublie pas qu'Expo (le téléphone) ne peut pas parler directement à la base de données pour des raisons de sécurité. Il faudra créer un petit serveur (API) entre les deux.
