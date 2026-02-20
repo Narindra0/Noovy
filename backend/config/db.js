@@ -1,12 +1,14 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+const connectionString = process.env.DATABASE_URL ? process.env.DATABASE_URL.trim() : null;
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL ? {
-    rejectUnauthorized: false // Required for Supabase/Render
+  connectionString: connectionString,
+  ssl: connectionString ? {
+    rejectUnauthorized: false
   } : false,
-  // Fallback to individual env vars if (rarely) needed
+  // Fallback to individual env vars if connectionString is not provided
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 5432,
   user: process.env.DB_USER || 'postgres',
