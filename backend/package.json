@@ -5,17 +5,19 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
-    "seed": "node seed.js"
+    "dev": "node server.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.992.0",
+    "@aws-sdk/s3-request-presigner": "^3.992.0",
     "axios": "^1.13.5",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "jpeg-js": "^0.4.4",
     "jsonwebtoken": "^9.0.2",
+    "pdfjs-dist": "^5.4.624",
     "pg": "^8.13.0"
   }
 }
