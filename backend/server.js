@@ -16,12 +16,17 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/books', booksRoutes);
 
-// Health check
+// Health check endpoints
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'Noovy API', timestamp: new Date().toISOString() });
 });
 
-// Initialize database tables (only users — books come from Archive.org)
+// Root health check for Uptime Robot / Render
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// Initialize database tables (only users — books come from Backblaze B2)
 const initDB = async () => {
   try {
     const pool = require('./config/db');
@@ -44,7 +49,7 @@ const initDB = async () => {
 // Start server
 app.listen(PORT, async () => {
   console.log(`🚀 Noovy API running on http://localhost:${PORT}`);
-  console.log('📚 Books sourced from Archive.org + OpenLibrary');
+  console.log('📚 Books sourced from Backblaze B2 + OpenLibrary');
   await initDB();
 });
 

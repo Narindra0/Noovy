@@ -1,13 +1,23 @@
 const express = require('express');
-const archiveService = require('../services/archive');
 const metadataService = require('../services/metadata');
 const { filterBooksByCollection } = require('../services/collections');
 
 const router = express.Router();
+let booksService;
+
+try {
+    booksService = require('../services/backblaze');
+} catch (backblazeError) {
+    try {
+        booksService = require('../services/archive');
+    } catch (archiveError) {
+        throw new Error('No books service available: expected ../services/backblaze or ../services/archive');
+    }
+}
 
 // Helper: add PDF URL to a single book
 async function addPdfUrl(book) {
-    const fileUrl = await archiveService.getPdfUrl(book.id);
+    const fileUrl = await booksService.getPdfUrl(book.id);
     return { ...book, file_url: fileUrl };
 }
 
@@ -24,12 +34,12 @@ function parsePagination(query) {
     return { page, limit, offset };
 }
 
-// GET /api/books — List all books (basic data from Archive.org, enriched with OpenLibrary)
+// GET /api/books — List all books (fetched from Backblaze B2, enriched with OpenLibrary)
 router.get('/', async (req, res) => {
     try {
         const { page, limit, offset } = parsePagination(req.query);
         const { collection } = req.query;
-        const books = await archiveService.getAllBooks();
+        const books = await booksService.getAllBooks();
         const filteredBooks = filterBooksByCollection(books, collection);
         const total = filteredBooks.length;
 
@@ -47,7 +57,7 @@ router.get('/', async (req, res) => {
 // GET /api/books/featured — Get featured books (first 4)
 router.get('/featured', async (req, res) => {
     try {
-        const books = await archiveService.getAllBooks();
+        const books = await booksService.getAllBooks();
         const featured = books.slice(0, 4);
         const enriched = await metadataService.enrichBooks(featured);
 
@@ -62,10 +72,12 @@ router.get('/featured', async (req, res) => {
 router.get('/recent', async (req, res) => {
     try {
         const limit = req.query.limit ? parseInt(req.query.limit) : 5;
-        const books = await archiveService.getAllBooks();
+        const books = await booksService.getAllBooks();
 
-        // Archive.org results are already sorted by addeddate desc
-        const recent = books.slice(0, limit);
+        const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(limit, 1), 50) : 5;
+        const recent = [...books]
+            .sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime())
+            .slice(0, safeLimit);
         const enriched = await metadataService.enrichBooks(recent);
 
         res.json({ books: enriched, total: enriched.length });
@@ -85,7 +97,7 @@ router.get('/search', async (req, res) => {
             return res.status(400).json({ error: 'Search query (q) is required' });
         }
 
-        const books = await archiveService.searchBooks(q);
+        const books = await booksService.searchBooks(q);
         const total = books.length;
         const paginated = books.slice(offset, offset + limit);
         const enriched = await metadataService.enrichBooks(paginated);
@@ -103,11 +115,11 @@ router.get('/categories', (req, res) => {
     res.json({ categories: [] });
 });
 
-// GET /api/books/:id — Get a single book by Archive.org identifier (full detail with PDF URL)
+// GET /api/books/:id — Get a single book by Backblaze B2 identifier (full detail with PDF URL)
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const book = await archiveService.getBookByIdentifier(id);
+        const book = await booksService.getBookByIdentifier(id);
 
         if (!book) {
             return res.status(404).json({ error: 'Book not found' });
