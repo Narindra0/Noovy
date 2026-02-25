@@ -1,0 +1,38 @@
+[
+  {
+    "bookId": "SnVsZXMgVmVybmUgLSBWaW5ndCBtaWxsZSBsaWV1ZXMgc291cyBsZXMgbWVycyAtLS0gKE55IEFpa28gQm9reSk",
+    "author": "Jules Verne",
+    "title": "Vingt mille lieues sous les mers",
+    "librivoxId": "3103"
+  },
+  {
+    "bookId": "TWF1cmljZSBMZWJsYW5jIC0gQXJzw6huZSBMdXBpbiAtIEwnQWdlbmNlIEJhcm5ldHQgJiBDaWUgLS0tIChOeSBBaWtvIEJva3kp",
+    "author": "Maurice Leblanc",
+    "title": "Arsene Lupin - L'Agence Barnett & Cie",
+    "librivoxId": "8705"
+  },
+  {
+    "bookId": "TWV5cmluayAtIExlIEdvbGVtIC0tLSAoTnkgQWlrbyBCb2t5KQ",
+    "author": "Meyrink",
+    "title": "Le Golem",
+    "librivoxId": "1892"
+  },
+  {
+    "bookId": "VmljdG9yIEh1Z28gLSBDbGF1ZGUgR3VldXggLS0tIChOeSBBaWtvIEJva3kp",
+    "author": "Victor Hugo",
+    "title": "Claude Gueux",
+    "librivoxId": "9961"
+  },
+  {
+    "bookId": "VmljdG9yIEh1Z28gLSBMZSBkZXJuaWVyIGpvdXIgZCd1biBjb25kYW1uw6kgLS0tIChOeSBBaWtvIEJva3kp",
+    "author": "Victor Hugo",
+    "title": "Le dernier jour d'un condamne",
+    "librivoxId": "17544"
+  },
+  {
+    "bookId": "VmljdG9yIEh1Z28gLSBOb3RyZS1EYW1lIGRlIFBhcmlzIC0tLSAoTnkgQWlrbyBCb2t5KQ",
+    "author": "Victor Hugo",
+    "title": "Notre-Dame de Paris",
+    "librivoxId": "3138"
+  }
+]

@@ -1,24 +1,24 @@
 const express = require('express');
 const metadataService = require('../services/metadata');
 const { filterBooksByCollection } = require('../services/collections');
+const audiobooksService = require('../services/audiobooks');
 
 const router = express.Router();
 let booksService;
 
 try {
     booksService = require('../services/backblaze');
-} catch (backblazeError) {
+} catch {
     try {
         booksService = require('../services/archive');
-    } catch (archiveError) {
+    } catch {
         throw new Error('No books service available: expected ../services/backblaze or ../services/archive');
     }
 }
 
 // Helper: add PDF URL to a single book
 async function addPdfUrl(book) {
-    const fileUrl = await booksService.getPdfUrl(book.id);
-    return { ...book, file_url: fileUrl };
+    return { ...book, file_url: await booksService.getPdfUrl(book.id) };
 }
 
 function parsePagination(query) {
@@ -34,7 +34,7 @@ function parsePagination(query) {
     return { page, limit, offset };
 }
 
-// GET /api/books — List all books (fetched from Backblaze B2, enriched with OpenLibrary)
+// GET /api/books - List all books (fetched from Backblaze B2, enriched with OpenLibrary)
 router.get('/', async (req, res) => {
     try {
         const { page, limit, offset } = parsePagination(req.query);
@@ -54,7 +54,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET /api/books/featured — Get featured books (first 4)
+// GET /api/books/featured - Get featured books (first 4)
 router.get('/featured', async (req, res) => {
     try {
         const books = await booksService.getAllBooks();
@@ -68,10 +68,10 @@ router.get('/featured', async (req, res) => {
     }
 });
 
-// GET /api/books/recent — Get recently added books
+// GET /api/books/recent - Get recently added books
 router.get('/recent', async (req, res) => {
     try {
-        const limit = req.query.limit ? parseInt(req.query.limit) : 5;
+        const limit = req.query.limit ? parseInt(req.query.limit, 10) : 5;
         const books = await booksService.getAllBooks();
 
         const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(limit, 1), 50) : 5;
@@ -87,7 +87,7 @@ router.get('/recent', async (req, res) => {
     }
 });
 
-// GET /api/books/search?q= — Search books by title or author
+// GET /api/books/search?q= - Search books by title or author
 router.get('/search', async (req, res) => {
     try {
         const { q } = req.query;
@@ -110,12 +110,44 @@ router.get('/search', async (req, res) => {
     }
 });
 
-// GET /api/books/categories — No longer applicable (returns empty)
+// GET /api/books/categories - No longer applicable (returns empty)
 router.get('/categories', (req, res) => {
     res.json({ categories: [] });
 });
 
-// GET /api/books/:id — Get a single book by Backblaze B2 identifier (full detail with PDF URL)
+// GET /api/books/audio/stream?u=... - Proxy stream with HTTP range support
+router.get('/audio/stream', async (req, res) => {
+    try {
+        await audiobooksService.proxyAudioStream(req, res);
+    } catch (err) {
+        console.error('Audio stream proxy error:', err.message);
+        res.status(500).json({ error: 'Audio stream error' });
+    }
+});
+
+// GET /api/books/:id/audio - Get audiobook metadata if available
+router.get('/:id/audio', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const book = await booksService.getBookByIdentifier(id);
+
+        if (!book) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+
+        const audio = await audiobooksService.getAudioForBook(book, req);
+        res.json({
+            bookId: book.id,
+            hasAudio: audio.hasAudio,
+            audiobook: audio.audiobook,
+        });
+    } catch (err) {
+        console.error('Get book audio error:', err.message);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// GET /api/books/:id - Get a single book by Backblaze B2 identifier (full detail with PDF URL)
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -128,8 +160,15 @@ router.get('/:id', async (req, res) => {
         // Full enrichment: OpenLibrary metadata + PDF URL
         const enriched = await metadataService.enrichBook(book);
         const withPdf = await addPdfUrl(enriched);
+        const audio = await audiobooksService.getAudioForBook(book, req);
 
-        res.json({ book: withPdf });
+        res.json({
+            book: {
+                ...withPdf,
+                hasAudio: audio.hasAudio,
+                audiobook: audio.audiobook,
+            },
+        });
     } catch (err) {
         console.error('Get book error:', err.message);
         res.status(500).json({ error: 'Server error' });

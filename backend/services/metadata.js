@@ -3,9 +3,16 @@ const axios = require('axios');
 const SEARCH_URL = 'https://openlibrary.org/search.json';
 const WORKS_URL = 'https://openlibrary.org';
 const GOOGLE_BOOKS_URL = 'https://www.googleapis.com/books/v1/volumes';
+
 const cache = new Map();
+const inflight = new Map();
+
 const FRESH_TTL = 24 * 60 * 60 * 1000; // 24h
 const STALE_TTL = 7 * 24 * 60 * 60 * 1000; // 7d
+
+const GOOGLE_COOLDOWN_MS = 15 * 60 * 1000; // 15 min
+let googleDisabledUntil = 0;
+let lastGoogle429LogAt = 0;
 
 function getCacheKey(book) {
     return `${book.author || ''}|${book.title || ''}`.toLowerCase().trim();
@@ -51,10 +58,11 @@ function safeYear(dateLike) {
 
 function normalizeQuery(q) {
     if (!q) return '';
-    return q.replace(/Chrisitie/gi, 'Christie')
+    return q
+        .replace(/Chrisitie/gi, 'Christie')
         .replace(/Agathe/gi, 'Agatha')
         .replace(/sur tables/gi, 'sur table')
-        .replace(/[^\w\sÃ Ã¢Ã¤Ã©Ã¨ÃªÃ«Ã¯Ã®Ã´Ã¶Ã¹Ã»Ã¼Ã§]/gi, ' ') // Remove special chars but keep French accents
+        .replace(/[^\w\sàâäéèêëïîôöùûüç]/gi, ' ')
         .replace(/\s+/g, ' ')
         .trim();
 }
@@ -66,7 +74,7 @@ async function fetchOpenLibrary(book) {
 
     const res = await axios.get(SEARCH_URL, {
         params: {
-            q: q,
+            q,
             limit: 5,
             fields: 'key,first_publish_year,cover_i,cover_edition_key,number_of_pages_median,language',
         },
@@ -76,8 +84,7 @@ async function fetchOpenLibrary(book) {
     const docs = res.data?.docs || [];
     if (!docs.length) return null;
 
-    // Look for the first result that has a cover
-    let bestDoc = docs.find(d => d.cover_i || d.cover_edition_key) || docs[0];
+    const bestDoc = docs.find((d) => d.cover_i || d.cover_edition_key) || docs[0];
 
     let description = null;
     if (bestDoc.key) {
@@ -86,8 +93,8 @@ async function fetchOpenLibrary(book) {
             const raw = workRes.data?.description;
             if (typeof raw === 'string') description = raw;
             if (raw && typeof raw === 'object' && raw.value) description = raw.value;
-        } catch (e) {
-            // Non-critical.
+        } catch {
+            // non-critical
         }
     }
 
@@ -109,6 +116,10 @@ async function fetchOpenLibrary(book) {
 }
 
 async function fetchGoogleBooks(book) {
+    if (Date.now() < googleDisabledUntil) {
+        return null;
+    }
+
     let q = book.q || `${book.title || ''} ${book.author || ''}`.trim();
     q = normalizeQuery(q);
     if (!q) return null;
@@ -126,9 +137,8 @@ async function fetchGoogleBooks(book) {
     const items = res.data?.items || [];
     if (!items.length) return null;
 
-    // Find first item with imageLinks
-    const bestItem = items.find(item => item.volumeInfo?.imageLinks) || items[0];
-    const info = bestItem.volumeInfo;
+    const bestItem = items.find((item) => item.volumeInfo?.imageLinks) || items[0];
+    const info = bestItem.volumeInfo || {};
     const imageLinks = info.imageLinks || {};
     const cover =
         imageLinks.extraLarge ||
@@ -151,7 +161,25 @@ async function fetchGoogleBooks(book) {
     };
 }
 
+function needsGoogleFallback(meta) {
+    if (!meta) return true;
+    return !(meta.cover_url && meta.description);
+}
 
+function handleProviderError(providerName, bookTitle, error) {
+    const status = error.response ? error.response.status : 'Unknown';
+
+    if (providerName === 'googlebooks' && status === 429) {
+        googleDisabledUntil = Date.now() + GOOGLE_COOLDOWN_MS;
+        if (Date.now() - lastGoogle429LogAt > 60 * 1000) {
+            lastGoogle429LogAt = Date.now();
+            console.error(`[Metadata] Google Books rate-limited (429). Disabled for ${Math.round(GOOGLE_COOLDOWN_MS / 60000)} min.`);
+        }
+        return;
+    }
+
+    console.error(`[Metadata] Error from ${providerName} for ${bookTitle}: ${status} - ${error.message}`);
+}
 
 function isAuthorBio(text) {
     if (!text) return false;
@@ -159,30 +187,28 @@ function isAuthorBio(text) {
     const bioMarkers = [
         'is an author', 'was an author', 'born in', 'published his first',
         'lives in', 'studied at', 'won the', 'best known for',
-        'prolific writer', 'mystery writer', 'famous for', 'Ã©crivain',
-        'romanciÃ¨re', 'nÃ©e en', 'a Ã©crit', 'paru en'
+        'prolific writer', 'mystery writer', 'famous for', 'ecrivain',
+        'romanciere', 'nee en', 'a ecrit', 'paru en',
     ];
-    // If it starts with the author's name or is very long and full of bio markers
-    const markersFound = bioMarkers.filter(m => lower.includes(m)).length;
+    const markersFound = bioMarkers.filter((m) => lower.includes(m)).length;
     return markersFound >= 2;
 }
 
 function mergeMetadata(base, extra) {
     if (!extra) return base;
 
-    // Synopsis guard: don't overwrite a good description with an author bio
     let description = base.description;
     if (extra.description && !isAuthorBio(extra.description)) {
         description = extra.description;
     } else if (!description && extra.description) {
-        description = extra.description; // Take it if we have nothing else
+        description = extra.description;
     }
 
     return {
         cover_url: extra.cover_url || base.cover_url || null,
         year: extra.year || base.year || null,
         pages: extra.pages || base.pages || null,
-        description: description,
+        description,
         rating: extra.rating || base.rating || null,
         ratingsCount: extra.ratingsCount || base.ratingsCount || null,
         publisher: extra.publisher || base.publisher || null,
@@ -197,45 +223,32 @@ async function resolveMetadata(book) {
     let merged = base;
     let successfulSource = null;
 
-    const providers = [
-        { name: 'openlibrary', fn: fetchOpenLibrary },
-        { name: 'googlebooks', fn: fetchGoogleBooks },
-    ];
+    try {
+        let openData = await fetchOpenLibrary(book);
+        if (!openData && book.title) {
+            openData = await fetchOpenLibrary({ title: book.title, q: book.title });
+        }
+        if (openData) {
+            merged = mergeMetadata(merged, openData);
+            successfulSource = successfulSource || 'openlibrary';
+        }
+    } catch (e) {
+        handleProviderError('openlibrary', book.title, e);
+    }
 
-    // Try all providers in parallel for initial search
-    const results = await Promise.all(
-        providers.map(async (p) => {
-            try {
-                let data = await p.fn(book);
-
-                // Fallback: If no data found, try searching with only title
-                if (!data && book.title) {
-                    data = await p.fn({ title: book.title, q: book.title });
-                }
-
-                return { name: p.name, data };
-            } catch (e) {
-                // Keep error logs as requested
-                const status = e.response ? e.response.status : 'Unknown';
-                console.error(`[Metadata] âš ï¸ Error from ${p.name} for ${book.title}: ${status} - ${e.message}`);
-                return { name: p.name, data: null };
+    if (needsGoogleFallback(merged)) {
+        try {
+            let googleData = await fetchGoogleBooks(book);
+            if (!googleData && book.title) {
+                googleData = await fetchGoogleBooks({ title: book.title, q: book.title });
             }
-        })
-    );
-
-    // Prioritize results with covers
-    const successfulResults = results.filter(r => r.data).sort((a, b) => {
-        if (a.data.cover_url && !b.data.cover_url) return -1;
-        if (!a.data.cover_url && b.data.cover_url) return 1;
-        return 0;
-    });
-
-    if (successfulResults.length > 0) {
-        // Merge all successful results, prioritizing the one with a cover
-        successfulResults.forEach(r => {
-            merged = mergeMetadata(merged, r.data);
-            successfulSource = successfulSource || r.name;
-        });
+            if (googleData) {
+                merged = mergeMetadata(merged, googleData);
+                successfulSource = successfulSource || 'googlebooks';
+            }
+        } catch (e) {
+            handleProviderError('googlebooks', book.title, e);
+        }
     }
 
     return {
@@ -259,8 +272,22 @@ async function enrichBook(book, options = {}) {
         };
     }
 
+    const inflightKey = `meta:${cacheKey}`;
+    if (inflight.has(inflightKey)) {
+        const resolved = await inflight.get(inflightKey);
+        return {
+            ...book,
+            ...resolved.data,
+            metadata_source: resolved.source,
+            metadata_cached: false,
+            metadata_stale: false,
+        };
+    }
+
     try {
-        const resolved = await resolveMetadata(book);
+        const promise = resolveMetadata(book);
+        inflight.set(inflightKey, promise);
+        const resolved = await promise;
         setCache(cacheKey, resolved.data, resolved.source);
 
         return {
@@ -270,7 +297,7 @@ async function enrichBook(book, options = {}) {
             metadata_cached: false,
             metadata_stale: false,
         };
-    } catch (err) {
+    } catch {
         const stale = getCached(cacheKey, true);
         if (stale) {
             return {
@@ -289,10 +316,12 @@ async function enrichBook(book, options = {}) {
             metadata_cached: false,
             metadata_stale: false,
         };
+    } finally {
+        inflight.delete(inflightKey);
     }
 }
 
-async function enrichBooks(books, concurrency = 6) {
+async function enrichBooks(books, concurrency = 3) {
     const results = [];
     for (let i = 0; i < books.length; i += concurrency) {
         const batch = books.slice(i, i + concurrency);
@@ -304,6 +333,7 @@ async function enrichBooks(books, concurrency = 6) {
 
 function clearCache() {
     cache.clear();
+    inflight.clear();
 }
 
 module.exports = {

@@ -1,0 +1,48 @@
+{
+  "summary": {
+    "generatedAt": "2026-02-25T06:07:16.620Z",
+    "durationSeconds": 5,
+    "totalBooks": 5,
+    "withAudiobook": 0,
+    "withoutAudiobook": 5,
+    "failedChecks": 0,
+    "coveragePercent": 0
+  },
+  "booksWithAudiobook": [],
+  "booksWithoutAudiobook": [
+    {
+      "id": "QS5KLkNyb25pbiAtIExlIGphcmRpbmllciBlc3BhZ25vbCAtLS0gKE55IEFpa28gQm9reSk",
+      "title": "Le jardinier espagnol",
+      "author": "A.J.Cronin"
+    },
+    {
+      "id": "QWJyYWhhbSBNZXJyaXR0IC0gTGVzIGhhYml0YW50cyBkdSBtaXJhZ2UgLS0tIChOeSBBaWtvIEJva3kp",
+      "title": "Les habitants du mirage",
+      "author": "Abraham Merritt"
+    },
+    {
+      "id": "QWRvbGZvIEJpb3kgQ2FzYXJlcyAtIEwnaW52ZW50aW9uIGRlIE1vcmVsIC0tLSAoTnkgQWlrbyBCb2t5KQ",
+      "title": "L'invention de Morel",
+      "author": "Adolfo Bioy Casares"
+    },
+    {
+      "id": "QWdhdGhhIENocmlzdGllIC0gQSBsJ2jDtHRlbCBCZXJ0cmFtIC0tLSAoTnkgQWlrbyBCb2t5KQ",
+      "title": "A l'hôtel Bertram",
+      "author": "Agatha Christie"
+    },
+    {
+      "id": "QWdhdGhhIENocmlzdGllIC0gQUJDIGNvbnRyZSBQb2lyb3QgLS0tIChOeSBBaWtvIEJva3kp",
+      "title": "ABC contre Poirot",
+      "author": "Agatha Christie"
+    }
+  ],
+  "errors": [],
+  "integrationPlan": [
+    "1. Ajouter un champ optionnel `audiobook` dans le modèle de livre (id LibriVox, url, durée, narrateurs).",
+    "2. Exécuter ce script en tâche planifiée pour enrichir la base et éviter les appels LibriVox au runtime.",
+    "3. Exposer `hasAudioBook` et les métadonnées audio dans `/api/books` et `/api/books/:id`.",
+    "4. Côté app mobile, afficher un badge \"Livre audio disponible\" sur les cartes et la page détail.",
+    "5. Ajouter une analytics simple: taux de conversion lecture texte vers écoute audio.",
+    "6. Lot prioritaire: traiter d’abord les 0 premiers livres trouvés avec audio."
+  ]
+}

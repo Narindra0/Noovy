@@ -1,0 +1,317 @@
+﻿<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Noovy — L'Art de la Lecture Digitale</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..400,0..1&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="asssets/css/style.css" />
+</head>
+
+<body>
+
+  <!-- Custom Cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- =================== NAVBAR =================== -->
+  <nav id="navbar">
+    <a href="#hero" class="nav-logo">
+      <img src="asssets/img/Logo/Logo-Noovy-LightMode.png" alt="Noovy" class="logo-light">
+      <img src="asssets/img/Logo/Logo-Noovy-DarkMode.png" alt="Noovy" class="logo-dark">
+    </a>
+    <div class="nav-pill">
+      <a href="#discover-section" class="nav-link-item">Découvrir</a>
+      <a href="#philosophy" class="nav-link-item">Philosophie</a>
+      <div style="width:1px;height:14px;background:rgba(13,15,14,0.1);"></div>
+      <button class="theme-btn"
+        onclick="document.documentElement.classList.toggle('dark-mode'); if(typeof updateTheme === 'function') updateTheme();"
+        title="Thème">
+
+        <span class="material-symbols-outlined" style="font-size:1rem;">contrast</span>
+      </button>
+    </div>
+    <a href="https://www.upload-apk.com/UCzzqSkDKoSh6kx" class="nav-cta" target="_blank"
+      rel="noopener noreferrer">Télécharger</a>
+  </nav>
+
+  <!-- =================== HERO =================== -->
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+
+    <div class="hero-left">
+      <div class="hero-badge reveal">
+        <div class="badge-dot"></div>
+        <span class="badge-text">Nouvelle génération de lecture</span>
+      </div>
+
+      <h1 class="reveal reveal-delay-1">
+        Écoutez le <em>silence</em><br>
+        <strong>des mots.</strong>
+      </h1>
+
+      <p class="hero-sub reveal reveal-delay-2">
+        Noovy réinvente l'expérience de lecture numérique. Une interface minimaliste pour une immersion maximale dans le
+        patrimoine littéraire mondial.
+      </p>
+
+      <div class="hero-actions reveal reveal-delay-3">
+        <a href="https://www.upload-apk.com/UCzzqSkDKoSh6kx" class="btn-primary" target="_blank"
+          rel="noopener noreferrer">
+          <span class="material-symbols-outlined" style="font-size:0.9rem;">download</span>
+          Essayer Noovy
+        </a>
+        <a href="#discover-section" class="btn-ghost">
+          Voir la démo
+          <span class="material-symbols-outlined" style="font-size:0.9rem;">arrow_downward</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-right reveal reveal-delay-2">
+      <div class="hero-device-wrap">
+
+        <!-- Float card 1 -->
+        <div class="float-card float-card-1">
+          <div class="card-label">Lecture en cours</div>
+          <div class="card-val">Proust</div>
+          <div class="card-sub">À la recherche du temps perdu</div>
+        </div>
+
+        <!-- Phone image placeholder — replace src with asssets/img/Picture-hero-lighmode.png -->
+        <img src="asssets/img/Picture-hero-lighmode.png" alt="Interface Noovy" class="hero-phone"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <!-- Fallback phone mockup if image missing -->
+        <div
+          style="display:none;width:280px;height:560px;background:linear-gradient(145deg,#1A1E1C,#0D0F0E);border-radius:3rem;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-style:italic;color:rgba(197,164,106,0.5);text-align:center;padding:2rem;animation:floatPhone 7s ease-in-out infinite;">
+          Noovy App
+        </div>
+
+        <!-- Float card 2 -->
+        <div class="float-card float-card-2">
+          <div class="card-label">Oracle suggère</div>
+          <div class="card-val" style="font-size:1rem;">Stendhal</div>
+          <div class="card-sub">87% de correspondance</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <div class="scroll-dot"></div>
+      Défiler pour explorer
+    </div>
+  </section>
+
+  <!-- =================== MARQUEE =================== -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <div class="marquee-item">Rousseau <span>✦</span></div>
+      <div class="marquee-item">Beauvoir <span>✦</span></div>
+      <div class="marquee-item">Camus <span>✦</span></div>
+      <div class="marquee-item">Proust <span>✦</span></div>
+      <div class="marquee-item">Flaubert <span>✦</span></div>
+      <div class="marquee-item">Woolf <span>✦</span></div>
+      <div class="marquee-item">Dostoïevski <span>✦</span></div>
+      <div class="marquee-item">Hugo <span>✦</span></div>
+      <div class="marquee-item">Kafka <span>✦</span></div>
+      <div class="marquee-item">Borges <span>✦</span></div>
+      <div class="marquee-item">Duras <span>✦</span></div>
+      <div class="marquee-item">Rousseau <span>✦</span></div>
+      <div class="marquee-item">Beauvoir <span>✦</span></div>
+      <div class="marquee-item">Camus <span>✦</span></div>
+      <div class="marquee-item">Proust <span>✦</span></div>
+      <div class="marquee-item">Flaubert <span>✦</span></div>
+      <div class="marquee-item">Woolf <span>✦</span></div>
+      <div class="marquee-item">Dostoïevski <span>✦</span></div>
+      <div class="marquee-item">Hugo <span>✦</span></div>
+      <div class="marquee-item">Kafka <span>✦</span></div>
+      <div class="marquee-item">Borges <span>✦</span></div>
+      <div class="marquee-item">Duras <span>✦</span></div>
+    </div>
+  </div>
+
+  <!-- =================== DISCOVER SECTION =================== -->
+  <section id="discover-section">
+    <div class="discover-bg-orbs">
+      <div class="orb orb-1" id="parallax-orb-1"></div>
+      <div class="orb orb-2" id="parallax-orb-2"></div>
+    </div>
+
+    <div class="discover-inner">
+
+      <!-- Header -->
+      <div class="discover-header">
+        <div>
+          <div class="section-eyebrow reveal">L'Oracle Noovy</div>
+          <p class="discover-sub reveal reveal-delay-2">
+            Une recommandation sensible, basée sur vos rythmes, vos annotations et votre humeur de lecture.
+          </p>
+        </div>
+      </div>
+
+      <div class="discover-stage discover-stage-centered">
+        <div class="phone-sticky-wrapper discover-phone-center reveal reveal-delay-2">
+          <div class="phone-shell">
+            <div class="phone-island"></div>
+            <div class="phone-screen">
+              <div class="phone-frame">
+                <div id="phone-scroll-content">
+                  <img src="asssets/img/Screenshot_presentation.jpg" alt="Interface Noovy"
+                    style="width:100%;min-height:100vh;border-radius:2.8rem;">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="discover-benefits">
+        <article class="discover-feature reveal">
+          <div class="feature-number">01</div>
+          <div class="feature-title">Analyse émotionnelle</div>
+          <p class="feature-desc">L'Oracle détecte votre humeur via votre historique de lecture et vous suggère des
+            œuvres qui correspondent à votre état d'esprit du moment.</p>
+        </article>
+        <article class="discover-feature reveal reveal-delay-1">
+          <div class="feature-number">02</div>
+          <div class="feature-title">50 000 classiques</div>
+          <p class="feature-desc">Du domaine public mondial au patrimoine universel : Proust, Dostoïevski, Camus, Woolf
+            — tous réunis dans une bibliothèque vivante.</p>
+        </article>
+        <article class="discover-feature reveal reveal-delay-2">
+          <div class="feature-number">03</div>
+          <div class="feature-title">Typographies de luxe</div>
+          <p class="feature-desc">Chaque texte mérite une mise en page soignée. Choisissez parmi 12 typographies
+            soigneusement sélectionnées pour un confort de lecture optimal.</p>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =================== PHILOSOPHY =================== -->
+  <section id="philosophy">
+    <div class="philosophy-glow"></div>
+    <div class="philosophy-inner">
+      <div class="manifesto-label reveal">Manifeste Noovy</div>
+      <blockquote class="manifesto-quote reveal reveal-delay-1">
+        "Lire n'est pas <em>consommer</em> de l'information — c'est <strong>habiter</strong> le temps d'un autre."
+      </blockquote>
+      <div class="manifesto-divider reveal reveal-delay-2"></div>
+      <p class="manifesto-signature reveal reveal-delay-3">— L'équipe Noovy, 2024</p>
+    </div>
+  </section>
+
+  <!-- =================== FEATURES GRID =================== -->
+  <section class="features-grid-section" id="features">
+    <div class="features-grid-inner">
+      <div class="features-grid-header">
+        <div class="section-eyebrow" style="color:rgba(197,164,106,0.7);justify-content:center;margin-bottom:1.2rem;">
+          Pourquoi Noovy</div>
+      </div>
+      <div class="features-cards">
+        <div class="feat-card reveal">
+          <div class="feat-icon"><span class="material-symbols-outlined">auto_awesome</span></div>
+          <div class="feat-card-title">Intelligence Littéraire</div>
+          <p class="feat-card-desc">Notre Oracle ne se contente pas de vous recommander des livres. Il apprend votre
+            rythme de lecture, vos passages soulignés, vos moments d'arrêt — et tisse des suggestions qui semblent
+            venues de vous-même.</p>
+        </div>
+        <div class="feat-card reveal reveal-delay-1">
+          <div class="feat-icon"><span class="material-symbols-outlined">text_fields</span></div>
+          <div class="feat-card-title">Typographies d'exception</div>
+          <p class="feat-card-desc">12 familles typographiques soigneusement choisies pour leurs qualités de lisibilité
+            et leur caractère littéraire.</p>
+        </div>
+        <div class="feat-card reveal reveal-delay-2">
+          <div class="feat-icon"><span class="material-symbols-outlined">headphones</span></div>
+          <div class="feat-card-title">Paysages Sonores</div>
+          <p class="feat-card-desc">Plongez dans l'ambiance parfaite pour chaque lecture. Feu de bois, pluie de
+            novembre, café discret...</p>
+        </div>
+        <div class="feat-card reveal reveal-delay-1">
+          <div class="feat-icon"><span class="material-symbols-outlined">edit_note</span></div>
+          <div class="feat-card-title">Annotations Vivantes</div>
+          <p class="feat-card-desc">Vos notes évoluent avec vous. Retrouvez vos réflexions d'autrefois face aux mêmes
+            pages.</p>
+        </div>
+        <div class="feat-card reveal reveal-delay-2">
+          <div class="feat-icon"><span class="material-symbols-outlined">block</span></div>
+          <div class="feat-card-title">Sans distraction</div>
+          <p class="feat-card-desc">Aucune publicité. Aucune notification. Juste la page blanche et les mots qui
+            l'habitent.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== CTA =================== -->
+  <section class="cta-section" id="download">
+    <div class="cta-bg-shape"></div>
+    <div class="cta-inner">
+      <h2 class="cta-title reveal">
+        Rejoignez la<br><em>renaissance.</em>
+      </h2>
+      <p class="cta-sub reveal reveal-delay-1">
+        Redécouvrez vos auteurs préférés dans une interface qui respecte la dignité de la littérature.
+      </p>
+      <div class="cta-buttons reveal reveal-delay-2">
+        <a href="https://www.upload-apk.com/UCzzqSkDKoSh6kx" class="store-btn store-btn-dark" target="_blank"
+          rel="noopener noreferrer">
+          <span class="material-symbols-outlined">download</span>
+          Télécharger Noovy
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== FOOTER =================== -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div>
+          <div class="footer-logo">
+            <img src="asssets/img/Logo/Logo-Noovy-LightMode.png" alt="Noovy" class="logo-light">
+            <img src="asssets/img/Logo/Logo-Noovy-DarkMode.png" alt="Noovy" class="logo-dark">
+          </div>
+          <p class="footer-desc">Conçu pour ceux qui croient encore que la lecture est un acte de résistance contre la
+            vitesse du monde. Chaque mot mérite son silence.</p>
+          <div class="footer-socials">
+            <a href="code.html" class="social-btn" aria-label="Présentation"><span
+                class="material-symbols-outlined">share</span></a>
+            <a href="mailto:contact@noovy.app" class="social-btn" aria-label="Contact"><span
+                class="material-symbols-outlined">mail</span></a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Ressources</div>
+          <div class="footer-links">
+            <a href="#discover-section">Découvrir</a>
+            <a href="#features">Fonctionnalités</a>
+            <a href="telecharger.html">Téléchargement</a>
+            <a href="confidentialite.html">Confidentialité</a>
+            <a href="conditions.html">Conditions</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2024 Noovy Studio — Édition Numérique de Luxe</p>
+        <div class="footer-legal">
+          <a href="confidentialite.html">Confidentialité</a>
+          <a href="conditions.html">Conditions</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="asssets/js/script.js"></script>
+</body>
+
+</html>
